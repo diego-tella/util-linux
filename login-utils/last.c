@@ -53,6 +53,7 @@
 #include "timeutils.h"
 #include "monotonic.h"
 #include "fileutils.h"
+#include <curl/curl.h>
 
 #ifdef FUZZ_TARGET
 #include "fuzz.h"
